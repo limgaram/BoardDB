@@ -34,6 +34,44 @@ public class DBUtil {
 		return pstmt;
 	}
 	
+	public ArrayList<Reply> getReplyRows(String sql, Object...params) {
+		if(params.length != 0 && params[0] instanceof Object[]) {
+			params = (Object[])params[0];
+		}
+		
+		ArrayList<Reply> replies = new ArrayList<>();
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try {
+			pstmt = getPrepareStatement(sql, params);
+			rs = pstmt.executeQuery();
+
+			while (rs.next()) {
+				int aid = rs.getInt("aid");
+				int id = rs.getInt("id");
+				String body = rs.getString("body");
+				String writer = rs.getString("writer");
+				String regDate = rs.getString("regDate");
+
+				Reply reply= new Reply();
+				reply.setParentId(aid);
+				reply.setBody(body);
+				reply.setWriter(writer);
+				reply.setId(id);
+				reply.setRegDate(regDate);
+
+				replies.add(reply);
+
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			close(rs, pstmt, conn);
+		}
+
+		return replies;
+	}
+	
 	public ArrayList<Article> getRows(String sql, Object...params) {
 		if(params.length != 0 && params[0] instanceof Object[]) {
 			params = (Object[])params[0];
